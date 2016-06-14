@@ -211,3 +211,17 @@
                              :limit 50
                              :sorted-by :created-at
                              :filter-type :none}}))))
+
+(facts "about removing comments"
+       (against-background
+         [(before :contents (do (ih/db-connection)
+                                (ih/truncate-tables)))
+          (after :facts (ih/truncate-tables))]
+
+         (fact "can set comment 'removed-by-admin' to true"
+               (let [comment (sh/store-a-comment)
+                     comment-uri (str "/comments/" (:_id comment))]
+                 (:removed-by-admin comment) => false
+                 (comments/admin-remove-comment! comment) => (-> (dissoc comment :global-id)
+                                                                   (assoc :removed-by-admin true
+                                                                          :uri comment-uri))))))

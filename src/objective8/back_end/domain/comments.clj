@@ -19,7 +19,8 @@
                    :comment-on-id global-id
                    :objective-id (if (= entity :objective) 
                                    _id
-                                   objective-id))
+                                   objective-id)
+                   :removed-by-admin false)
             (dissoc :comment-on-uri)
             storage/pg-store!
             (dissoc :global-id)
@@ -60,3 +61,8 @@
       {:comments (if more-comments? (drop-last result) result)
        :pagination pagination-map
        :query query})))
+
+(defn admin-remove-comment! [comment]
+  (some-> (storage/pg-update-comment! comment :removed-by-admin true)
+          (utils/update-in-self [:uri] uri-for-comment)
+          (dissoc :global-id)))

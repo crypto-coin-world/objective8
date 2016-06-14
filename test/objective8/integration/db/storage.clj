@@ -396,3 +396,15 @@
               (let [{o-id :objective-id d-id :_id :as draft} (sh/store-a-draft)
                     draft-uri (str "/objectives/" o-id "/drafts/" d-id)]
                 (storage/pg-retrieve-entity-by-uri draft-uri :with-global-id) => (contains draft)))))
+
+
+(facts "about updating comments"
+       (against-background
+         [(before :contents (do (db-connection)
+                                (truncate-tables)))
+          (after :facts (truncate-tables))]
+
+         (fact "comment can be set to removed"
+               (let [comment (sh/store-a-comment)]
+                 (:removed-by-admin (storage/pg-update-comment! comment :removed-by-admin true)) => true
+                 ))))

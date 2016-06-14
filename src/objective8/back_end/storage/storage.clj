@@ -128,6 +128,11 @@ SELECT _id, 'section' AS entity FROM objective8.sections WHERE global_id=?
             field new-value)
           {:_id (:_id objective)}))
 
+(defn pg-update-comment! [comment field new-value]
+  (update (mappings/get-mapping {:entity :comment})
+          (assoc comment field new-value)
+          {:_id (:_id comment)}))
+
 (defn pg-toggle-star! [star]
   (update (mappings/get-mapping {:entity :star})
           (update-in star [:active] not)

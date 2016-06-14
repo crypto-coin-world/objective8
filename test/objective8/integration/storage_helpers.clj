@@ -212,7 +212,8 @@
                          :created-by-id created-by-id
                          :objective-id objective-id
                          :comment-on-id global-id
-                         :comment comment-text}))))
+                         :comment comment-text
+                         :removed-by-admin false}))))
 
 (defn store-an-annotation
   ([] (store-an-annotation {}))
