@@ -107,7 +107,7 @@
 (def map->comment
   (db-insertion-mapper "comment"
                        :comment
-                       [:global-id :created-by-id :objective-id :comment-on-id]))
+                       [:global-id :created-by-id :objective-id :comment-on-id :removed-by-admin]))
 
 (def map->reason
   (db-insertion-mapper "reason"
@@ -318,7 +318,7 @@
   (korma/belongs-to user {:fk :created_by_id})
   (korma/prepare map->comment)
   (korma/transform (-> (unmap :comment)
-                       (with-columns [:comment-on-id :created-by-id :global-id :objective-id])
+                       (with-columns [:comment-on-id :created-by-id :global-id :objective-id :removed-by-admin])
                        with-username-if-present)))
 
 (korma/defentity reason

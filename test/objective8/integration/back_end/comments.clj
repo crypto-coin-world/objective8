@@ -110,13 +110,14 @@
                     stored-comments (doall (->> (repeat {:entity draft :user user})
                                                 (take 5)
                                                 (map sh/store-a-comment)
-                                                (map #(dissoc % :global-id :comment-on-id))
+                                                (map #(dissoc % :global-id :comment-on-id :removed-by-admin))
                                                 (map #(assoc % :comment-on-uri draft-uri
                                                              :uri (str "/comments/" (:_id %))))))
                     escaped-draft-uri (str "%2fobjectives%2f" objective-id "%2fdrafts%2f" draft-id)
                     {response :response} (p/request app
                                                     (str (utils/api-path-for :api/get-comments)
                                                          "?uri=" escaped-draft-uri))]
+
                 (:body response) => (helpers/json-contains
                                      {:comments (contains (map contains (reverse stored-comments)))
                                       :pagination {}
@@ -252,3 +253,5 @@
                                                     :content-type "application/json"
                                                     :body (json/generate-string comment-data))] 
                 (:status second-response) => 201))))
+
+

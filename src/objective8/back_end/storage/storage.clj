@@ -195,7 +195,7 @@ WHERE answers.objective_id = ? AND answers.question_id = ?
   (-> (mappings/unmap :comment)
       with-notes-if-present
       with-reason-if-present
-      (mappings/with-columns [:comment-on-id :created-by-id :global-id :objective-id])
+      (mappings/with-columns [:comment-on-id :created-by-id :global-id :objective-id :removed-by-admin])
       mappings/with-username-if-present
       with-aggregate-votes))
 

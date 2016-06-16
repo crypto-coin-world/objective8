@@ -74,7 +74,8 @@
                                     :created-by-id user-id
                                     :objective-id objective-id
                                     :comment-on-id comment-on-id
-                                    :comment "A comment"}
+                                    :comment "A comment"
+                                    :removed-by-admin false}
                            store-result (storage/pg-store! comment)
                            retrieve-result (storage/pg-retrieve {:entity :comment :_id (:_id store-result)})]
                        (first (:result retrieve-result)) => (contains {:created-by-id user-id
@@ -334,7 +335,8 @@
 
          (fact "retrieving comments returns writer notes"
                (let [{comment-on-id :comment-on-id :as comment} (sh/store-a-comment)
-                     _ (sh/store-a-note {:note-on-entity comment :note "a real note"})]
+                     _ (sh/store-a-note {:note-on-entity comment :note "a real note"})
+                     ]
 
                  (storage/pg-retrieve-comments-with-votes {:global-id comment-on-id
                                                            :sorted-by :created-at

@@ -256,6 +256,8 @@
       (log/info "Error when getting comments: " e)
       (internal-server-error "Error when getting comments"))))
 
+(defn post-comment-removal [] ())
+
 ;;QUESTIONS
 (defn post-question [{:keys [route-params params] :as request}]
   (try

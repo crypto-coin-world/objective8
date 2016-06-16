@@ -90,7 +90,8 @@
 (def comment-map {:global-id GLOBAL_ID
                   :created-by-id USER_ID
                   :objective-id OBJECTIVE_ID
-                  :comment-on-id GLOBAL_ID})
+                  :comment-on-id GLOBAL_ID
+                  :removed-by-admin false})
 
 (facts "About map->comment"
        (fact "Column values are pulled out and converted, the map gets turned to json"
@@ -103,12 +104,14 @@
               (json-type->map (:comment test-comment)) =not=> (contains {:global-id anything})
               (json-type->map (:comment test-comment)) =not=> (contains {:comment-on-id anything})
               (json-type->map (:comment test-comment)) =not=> (contains {:objective-id anything})
-              (json-type->map (:comment test-comment)) =not=> (contains {:created-by-id anything})))
+              (json-type->map (:comment test-comment)) =not=> (contains {:created-by-id anything})
+              (json-type->map (:comment test-comment)) =not=> (contains {:removed-by-admin anything})))
        
        (fact "throws exception if :global-id, :created-by-id, :objective-id or :comment-on-id are missing"
              (map->comment (dissoc comment-map :global-id)) => (throws Exception)
              (map->comment (dissoc comment-map :created-by-id)) => (throws Exception)
              (map->comment (dissoc comment-map :objective-id)) => (throws Exception)
+             (map->comment (dissoc comment-map :removed-by-admin)) => (throws Exception)
              (map->comment (dissoc comment-map :comment-on-id)) => (throws Exception)))
 
 ;;REASONS

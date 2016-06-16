@@ -369,3 +369,48 @@
                (users/get-admin-by-auth-provider-user-id "twitter-123456") => {:auth-provider-user-id "twitter-123456"}
                (storage/pg-retrieve-entity-by-uri OBJECTIVE-URI :with-global-id) => nil
                )))
+
+(def COMMENT_URI (str "/comments/" COMMENT_ID))
+(def removed-comment-data {:_id COMMENT_ID :comment-uri COMMENT_URI :removed-by-uri USER_URI})
+
+(facts "about removing comments"
+       (fact "does remove a comment when signed in as an admin and comment exists"
+             (actions/create-admin-comment-removal! removed-comment-data) => {:status ::actions/success
+                                                                              :result COMMENT_ID}
+
+             (provided
+               (comments/admin-remove-comment! removed-comment-data) => COMMENT_ID
+               (storage/pg-retrieve-entity-by-uri COMMENT_URI :with-global-id) => removed-comment-data
+               (users/retrieve-user USER_URI) => {:auth-provider-user-id "twitter-123456"}
+               (users/get-admin-by-auth-provider-user-id "twitter-123456") => {:auth-provider-user-id "twitter-123456"}))
+
+       (fact "returns forbidden if comment removal unsuccessful"
+             (actions/create-admin-comment-removal! removed-comment-data) => {:status ::actions/forbidden}
+             (provided
+               (comments/admin-remove-comment! removed-comment-data) => nil
+               (storage/pg-retrieve-entity-by-uri COMMENT_URI :with-global-id) => removed-comment-data
+               (users/retrieve-user USER_URI) => {:auth-provider-user-id "twitter-123456"}
+               (users/get-admin-by-auth-provider-user-id "twitter-123456") => {:auth-provider-user-id "twitter-123456"}))
+
+       (fact "unable to delete comment if comment does not exist"
+             (actions/create-admin-comment-removal! removed-comment-data) => {:status ::actions/entity-not-found}
+
+             (provided
+               (storage/pg-retrieve-entity-by-uri COMMENT_URI :with-global-id) => nil
+               (users/retrieve-user USER_URI) => {:auth-provider-user-id "twitter-123456"}
+               (users/get-admin-by-auth-provider-user-id "twitter-123456") => {:auth-provider-user-id "twitter-123456"}))
+
+       (fact "unable to delete comment if user is not an admin"
+             (actions/create-admin-comment-removal! removed-comment-data) => {:status ::actions/forbidden}
+
+             (provided
+               (users/retrieve-user USER_URI) => {:auth-provider-user-id "twitter-123456"}
+               (users/get-admin-by-auth-provider-user-id "twitter-123456") => nil))
+
+       (fact "unable to delete comment if user is not signed in"
+             (actions/create-admin-comment-removal! removed-comment-data) => {:status ::actions/entity-not-found}
+
+             (provided
+               (users/retrieve-user USER_URI) => nil)))
+
+
