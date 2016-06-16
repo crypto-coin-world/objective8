@@ -196,7 +196,7 @@
       {:status ::forbidden})
     {:status ::entity-not-found}))
 
-(defn validate-user [user-uri do-function]
+(defn authorise-user [user-uri do-function]
   (if-let [user (users/retrieve-user user-uri)]
     (if (users/get-admin-by-auth-provider-user-id (:auth-provider-user-id user))
         do-function
@@ -204,8 +204,8 @@
     {:status ::entity-not-found}))
 
 (defn create-admin-removal! [{:keys [removal-uri removed-by-uri] :as admin-removal-data}]
-  (validate-user removed-by-uri
-                 (if-let [objective (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
+  (authorise-user removed-by-uri
+                  (if-let [objective (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
                    (if (:removed-by-admin objective)
                      {:status ::entity-not-found}
                      (do
@@ -213,17 +213,17 @@
                        {:status ::success :result (admin-removals/store-admin-removal! admin-removal-data)}))
                    {:status ::entity-not-found})))
 
-(defn create-promote-objective! [{:keys [objective-uri promoted-by] :as promoted-objective-data}]
-  (validate-user promoted-by
-                 (if-let [objective (storage/pg-retrieve-entity-by-uri objective-uri :with-global-id)]
+(defn promote-objective! [{:keys [objective-uri promoted-by] :as promoted-objective-data}]
+  (authorise-user promoted-by
+                  (if-let [objective (storage/pg-retrieve-entity-by-uri objective-uri :with-global-id)]
                    (if-let [toggled-objective (objectives/toggle-promoted-status! objective)]
                      {:status ::success :result toggled-objective}
                      {:status ::forbidden})
                    {:status ::entity-not-found})))
 
-(defn create-admin-comment-removal! [{:keys [comment-uri removed-by-uri] :as removed-comment-data}]
-  (validate-user removed-by-uri
-                 (if-let [comment (storage/pg-retrieve-entity-by-uri comment-uri :with-global-id)]
+(defn admin-remove-comment! [{:keys [removal-uri removed-by-uri] :as removed-comment-data}]
+  (authorise-user removed-by-uri
+                  (if-let [comment (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
                    (if-let [removed-comment (comments/admin-remove-comment! comment)]
                      {:status ::success :result removed-comment}
                      {:status ::forbidden})

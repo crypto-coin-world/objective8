@@ -70,9 +70,9 @@
                  (:body response) => (contains "Objective Title")
                  (:body response) => (contains (:removal-uri params))))))
 
-(facts "about objective pinning"
+(facts "about promoting objectives"
        (binding [config/enable-csrf false]
-         (fact "admin can post a pin objective form for an objective"
+         (fact "admin can post a promote objective form for an objective"
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/post-promote-objective {:objective-uri "1" :promoted-by "/users/1"}) => {:status ::http-api/success
@@ -132,9 +132,7 @@
                                               (p/request (utils/path-for :fe/post-promote-objective)
                                                          :request-method :post
                                                          :params params))]
-                 (:status response) => 502))
-
-         ))
+                 (:status response) => 502))))
 
 (facts "about admin activity"
        (fact "admin removals can be retrieved"
@@ -146,3 +144,6 @@
                                             (p/request (utils/path-for :fe/admin-activity)))]
                (:status response) => 200
                (:body response) => (contains OBJECTIVE_URI))))
+
+(facts "about removing comments"
+       )

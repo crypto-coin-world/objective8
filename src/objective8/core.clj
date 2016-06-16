@@ -131,6 +131,7 @@
        :api/get-objective               back-end-handlers/get-objective
        :api/get-objectives              back-end-handlers/get-objectives
        :api/post-comment                back-end-handlers/post-comment
+       :api/post-admin-comment-removal  back-end-handlers/post-comment-removal
        :api/get-comments                back-end-handlers/get-comments
        :api/post-question               back-end-handlers/post-question
        :api/get-question                back-end-handlers/get-question

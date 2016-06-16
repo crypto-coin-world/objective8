@@ -149,7 +149,7 @@
 (defn post-promote-objective [request]
   (try
     (if-let [pin-data (br/request->promote-objective-data request)]
-      (let [{status :status promoted-objective :result} (actions/create-promote-objective! pin-data)]
+      (let [{status :status promoted-objective :result} (actions/promote-objective! pin-data)]
         (cond
           (= status ::actions/success)
           (resource-updated-response (str utils/host-url "/api/v1/meta/promote-objective/" (:_id promoted-objective))
@@ -256,7 +256,27 @@
       (log/info "Error when getting comments: " e)
       (internal-server-error "Error when getting comments"))))
 
-(defn post-comment-removal [] ())
+(defn post-comment-removal [request]
+  (try
+    (if-let [comment-data (br/request->admin-removal-data request)]
+      (let [{status :status comment :result} (actions/admin-remove-comment! comment-data)]
+        (cond
+          (= status ::actions/success)
+          (resource-updated-response (str "/api/v1/meta/remove-comment/" (:_id comment))
+                                     comment)
+
+          (= status ::actions/entity-not-found)
+          (not-found-response "Entity with that uri does not exist for removal")
+
+          (= status ::actions/forbidden)
+          (forbidden-response "Admin credentials are required for this request")
+
+          :else
+          (internal-server-error "Error when posting comment removal")))
+      (invalid-response "Invalid remove comment request"))
+    (catch Exception e
+      (log/info "Error when removing comment: " e)
+      (internal-server-error "Error when posting comment removal"))))
 
 ;;QUESTIONS
 (defn post-question [{:keys [route-params params] :as request}]

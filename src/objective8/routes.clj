@@ -96,7 +96,8 @@
                                 "/writer-notes"   {:post :api/post-writer-note}
                                 "/admin-removals" {:post :api/post-admin-removal
                                                    :get  :api/get-admin-removals}
-                                "/promote-objective"  {:put :api/put-promote-objective}}
+                                "/promote-objective"  {:put :api/put-promote-objective}
+                                "/remove-comment" {:post :api/post-admin-comment-removal}}
               "/up-down-votes" {:post :api/post-up-down-vote}
               "/invitations"   {:get :api/get-invitation}
               "/activities"    {:get :api/get-activities}}}])

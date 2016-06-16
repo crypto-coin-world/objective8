@@ -16,6 +16,7 @@
         [(before :contents (do (helpers/db-connection)
                                (helpers/truncate-tables)))
          (after :facts (helpers/truncate-tables))]
+
         (fact "the posted admin removal is stored"
               (let [admin-uri (->> (sh/store-an-admin)
                                   :_id
@@ -94,6 +95,85 @@
                                                          (dissoc :_id :removed-by-id))
                     {response :response} (p/request app (utils/api-path-for :api/get-admin-removals))]
                     (:body response)  => (helpers/json-contains [expected-retrieved-admin-removal])))))
+
+(facts "about POST /api/v1/meta/admin-comment-removal"
+       (against-background
+         (m/valid-credentials? anything anything anything) => true)
+
+       (against-background
+         [(before :contents (do (helpers/db-connection)
+                                (helpers/truncate-tables)))
+          (after :facts (helpers/truncate-tables))]
+
+         (fact "posted comment removal is stored"
+               (let [admin-uri (->> (sh/store-an-admin)
+                                    :_id
+                                    (str "/users/"))
+                     comment-uri (->> (sh/store-a-comment)
+                                      :_id
+                                      (str "/comments/"))
+                     removal-data {:removal-uri    comment-uri
+                                   :removed-by-uri admin-uri}
+                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
+                                                     :request-method :post
+                                                     :content-type "application/json"
+                                                     :body (json/generate-string removal-data))]
+
+                 (:status response) => 200
+                 (:body response) => (helpers/json-contains {:uri comment-uri
+                                                             :removed-by-admin true})
+                 (:headers response) => (helpers/location-contains "/api/v1/meta/remove-comment/")))
+
+         (fact "returns 404 if comment to be removed does not exist"
+               (let [admin-uri (->> (sh/store-an-admin)
+                                    :_id
+                                    (str "/users/"))
+
+                     removal-data {:removal-uri    "/nothing/"
+                                   :removed-by-uri admin-uri}
+                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
+                                                     :request-method :post
+                                                     :content-type "application/json"
+                                                     :body (json/generate-string removal-data))]
+
+                 (:status response) => 404
+                 (:body response) => (helpers/json-contains {:reason "Entity with that uri does not exist for removal"})
+                 ))
+
+         (fact "returns 403 if user is not an admin"
+               (let [user-uri (->> (sh/store-a-user)
+                                    :_id
+                                    (str "/users/"))
+                     comment-uri (->> (sh/store-a-comment)
+                                      :_id
+                                      (str "/comments/"))
+                     removal-data {:removal-uri    comment-uri
+                                   :removed-by-uri user-uri}
+                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
+                                                     :request-method :post
+                                                     :content-type "application/json"
+                                                     :body (json/generate-string removal-data))]
+
+                 (:status response) => 403
+                 (:body response) => (helpers/json-contains {:reason "Admin credentials are required for this request"})
+                 ))
+
+         (fact "returns 400 if removal request is invalid"
+               (let [admin-uri (->> (sh/store-an-admin)
+                                    :_id
+                                    (str "/users/"))
+                     comment-uri (->> (sh/store-a-comment)
+                                      :_id
+                                      (str "/comments/"))
+                     removal-data {}
+                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
+                                                     :request-method :post
+                                                     :content-type "application/json"
+                                                     :body (json/generate-string removal-data))]
+
+                 (:status response) => 400
+                 (:body response) => (helpers/json-contains {:reason "Invalid remove comment request"}))
+               )))
 
 (facts "about /api/v1/meta/promote-objective"
        (against-background
