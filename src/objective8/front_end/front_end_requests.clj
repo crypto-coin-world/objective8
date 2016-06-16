@@ -346,6 +346,11 @@
   (some-> (:removal-data session)
           (utils/select-all-or-nothing [:removal-uri :removal-sample])))
 
+(defn request->comment-removal-data [{:keys [params] :as request} user-id]
+  (some-> params
+          (utils/select-all-or-nothing [:removal-uri :comment-on-uri])
+          (assoc :removed-by-uri (str "/users/" user-id))))
+
 ;; Promoting objectives
 
 (defn request->promoted-data [{:keys [params] :as request} user-id]

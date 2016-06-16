@@ -114,8 +114,8 @@
                                       (str "/comments/"))
                      removal-data {:removal-uri    comment-uri
                                    :removed-by-uri admin-uri}
-                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
-                                                     :request-method :post
+                     {response :response} (p/request app (utils/api-path-for :api/put-admin-comment-removal)
+                                                     :request-method :put
                                                      :content-type "application/json"
                                                      :body (json/generate-string removal-data))]
 
@@ -131,8 +131,8 @@
 
                      removal-data {:removal-uri    "/nothing/"
                                    :removed-by-uri admin-uri}
-                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
-                                                     :request-method :post
+                     {response :response} (p/request app (utils/api-path-for :api/put-admin-comment-removal)
+                                                     :request-method :put
                                                      :content-type "application/json"
                                                      :body (json/generate-string removal-data))]
 
@@ -149,8 +149,8 @@
                                       (str "/comments/"))
                      removal-data {:removal-uri    comment-uri
                                    :removed-by-uri user-uri}
-                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
-                                                     :request-method :post
+                     {response :response} (p/request app (utils/api-path-for :api/put-admin-comment-removal)
+                                                     :request-method :put
                                                      :content-type "application/json"
                                                      :body (json/generate-string removal-data))]
 
@@ -166,14 +166,13 @@
                                       :_id
                                       (str "/comments/"))
                      removal-data {}
-                     {response :response} (p/request app (utils/api-path-for :api/post-admin-comment-removal)
-                                                     :request-method :post
+                     {response :response} (p/request app (utils/api-path-for :api/put-admin-comment-removal)
+                                                     :request-method :put
                                                      :content-type "application/json"
                                                      :body (json/generate-string removal-data))]
 
                  (:status response) => 400
-                 (:body response) => (helpers/json-contains {:reason "Invalid remove comment request"}))
-               )))
+                 (:body response) => (helpers/json-contains {:reason "Invalid remove comment request"})))))
 
 (facts "about /api/v1/meta/promote-objective"
        (against-background

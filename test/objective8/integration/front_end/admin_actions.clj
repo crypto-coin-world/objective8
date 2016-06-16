@@ -11,6 +11,8 @@
 (def USER_URI (str "/users/" USER_ID))
 (def OBJECTIVE_ID 234)
 (def OBJECTIVE_URI (str "/objectives/" OBJECTIVE_ID))
+(def COMMENT_ID 456)
+(def COMMENT_URI (str "/comments/" COMMENT_ID))
 (def TWITTER_ID "twitter-123456")
 
 (facts "about confirming admin-removals"
@@ -19,11 +21,11 @@
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
-                                                                            :result {:_id USER_ID
+                                                                            :result {:_id      USER_ID
                                                                                      :username "username"}}
                  (http-api/get-user anything) => {:result {:admin true}})
                (against-background
-                 (http-api/post-admin-removal {:removal-uri OBJECTIVE_URI
+                 (http-api/post-admin-removal {:removal-uri    OBJECTIVE_URI
                                                :removed-by-uri USER_URI}) => {:status ::http-api/success})
                (let [user-session (ih/front-end-context)
                      params {:removal-uri OBJECTIVE_URI}
@@ -39,7 +41,7 @@
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
-                                                                            :result {:_id USER_ID
+                                                                            :result {:_id      USER_ID
                                                                                      :username "username"}}
                  (http-api/get-user anything) => {:result {:admin true}})
                (let [user-session (ih/front-end-context)
@@ -54,11 +56,11 @@
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
-                                                                            :result {:_id USER_ID
+                                                                            :result {:_id      USER_ID
                                                                                      :username "username"}}
                  (http-api/get-user anything) => {:result {:admin true}})
                (let [user-session (ih/front-end-context)
-                     params {:removal-uri OBJECTIVE_URI
+                     params {:removal-uri    OBJECTIVE_URI
                              :removal-sample "Objective Title"}
                      {response :response} (-> user-session
                                               ih/sign-in-as-existing-user
@@ -70,13 +72,85 @@
                  (:body response) => (contains "Objective Title")
                  (:body response) => (contains (:removal-uri params))))))
 
+(facts "about removing comments"
+       (binding [config/enable-csrf false]
+         (fact "admin can post an admin-removal confirmation for a comment"
+               (against-background
+                 (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
+                 (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
+                                                                            :result {:_id      USER_ID
+                                                                                     :username "username"}}
+                 (http-api/get-user anything) => {:result {:admin true}})
+
+               (against-background
+                 (http-api/post-comment-removal {:removal-uri    COMMENT_URI
+                                                 :removed-by-uri USER_URI
+                                                 :comment-on-uri OBJECTIVE_URI}) => {:status ::http-api/success})
+
+               (let [user-session (ih/front-end-context)
+                     params {:removal-uri COMMENT_URI
+                             :comment-on-uri OBJECTIVE_URI}
+                     {response :response} (-> user-session
+                                              ih/sign-in-as-existing-user
+                                              (p/request (utils/path-for :fe/post-admin-comment-removal)
+                                                         :request-method :post
+                                                         :params params))]
+                 (:headers response) => (ih/location-contains OBJECTIVE_URI)
+                 (:status response) => 302))
+
+         (fact "invalid comment removal request returns 400"
+               (against-background
+                 (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
+                 (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
+                                                                            :result {:_id      USER_ID
+                                                                                     :username "username"}}
+                 (http-api/get-user anything) => {:result {:admin true}})
+
+               (against-background
+                 (http-api/post-comment-removal {:removal-uri    COMMENT_URI
+                                                 :removed-by-uri USER_URI
+                                                 :comment-on-uri OBJECTIVE_URI}) => {:status ::http-api/invalid-input})
+
+               (let [user-session (ih/front-end-context)
+                     params {:removal-uri COMMENT_URI
+                             :comment-on-uri OBJECTIVE_URI}
+                     {response :response} (-> user-session
+                                              ih/sign-in-as-existing-user
+                                              (p/request (utils/path-for :fe/post-admin-comment-removal)
+                                                         :request-method :post
+                                                         :params params))]
+                 (:status response) => 400))
+
+         (fact "returns 502 if any other error occurs with the backend API"
+               (against-background
+                 (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
+                 (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
+                                                                            :result {:_id      USER_ID
+                                                                                     :username "username"}}
+                 (http-api/get-user anything) => {:result {:admin true}})
+
+               (against-background
+                 (http-api/post-comment-removal {:removal-uri    COMMENT_URI
+                                                 :removed-by-uri USER_URI
+                                                 :comment-on-uri OBJECTIVE_URI}) => {:status ::http-api/somethingelse})
+
+               (let [user-session (ih/front-end-context)
+                     params {:removal-uri COMMENT_URI
+                             :comment-on-uri OBJECTIVE_URI}
+                     {response :response} (-> user-session
+                                              ih/sign-in-as-existing-user
+                                              (p/request (utils/path-for :fe/post-admin-comment-removal)
+                                                         :request-method :post
+                                                         :params params))]
+                 (:status response) => 502))))
+
+
 (facts "about promoting objectives"
        (binding [config/enable-csrf false]
          (fact "admin can post a promote objective form for an objective"
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
-                 (http-api/post-promote-objective {:objective-uri "1" :promoted-by "/users/1"}) => {:status ::http-api/success
-                                                                                       :result              [{}]}
+                 (http-api/post-promote-objective {:objective-uri "1" :promoted-by "/users/1"}) => {:status ::http-api/success}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
                                                                             :result {:_id      USER_ID
                                                                                      :username "username"}}
@@ -97,7 +171,7 @@
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/post-promote-objective {:objective-uri "1" :promoted-by "/users/1"}) => {:status ::http-api/invalid-input
-                                                                                       :result              [{}]}
+                                                                                                    :result [{}]}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
                                                                             :result {:_id      USER_ID
                                                                                      :username "username"}}
@@ -113,11 +187,11 @@
                                                          :request-method :post
                                                          :params params))]
                  (:status response) => 400))
-         (fact "returns 400 if invalid input is entered"
+         (fact "returns 502 if any other error occurs with the back end API"
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/post-promote-objective {:objective-uri "1" :promoted-by "/users/1"}) => {:status ::http-api/aesrdtfyguh
-                                                                                       :result              [{:rs "drtfyghj"}]}
+                                                                                                    :result [{:rs "drtfyghj"}]}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
                                                                             :result {:_id      USER_ID
                                                                                      :username "username"}}
@@ -140,10 +214,7 @@
                (http-api/get-admin-removals) => {:status ::http-api/success
                                                  :result [{:removal-uri OBJECTIVE_URI
                                                            :_created_at "2015-03-24T17:06:37.714Z"}]})
-             (let [{response :response} (-> (ih/front-end-context) 
+             (let [{response :response} (-> (ih/front-end-context)
                                             (p/request (utils/path-for :fe/admin-activity)))]
                (:status response) => 200
                (:body response) => (contains OBJECTIVE_URI))))
-
-(facts "about removing comments"
-       )

@@ -131,6 +131,10 @@
   ([entity-uri options]
    (default-get-call (utils/api-path-for :api/get-comments) {:query-params (merge {:uri entity-uri} options)})))
 
+(defn post-comment-removal [comment-removal-data]
+  (default-put-call (utils/api-path-for :api/put-admin-comment-removal) comment-removal-data))
+
+
 ;; QUESTIONS
 
 (defn create-question [question]

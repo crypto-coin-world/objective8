@@ -93,6 +93,7 @@
        :fe/post-up-vote                    front-end-handlers/post-up-vote
        :fe/post-down-vote                  front-end-handlers/post-down-vote
        :fe/post-comment                    front-end-handlers/post-comment
+       :fe/post-admin-comment-removal      front-end-handlers/post-admin-comment-removal
        :fe/post-annotation                 front-end-handlers/post-annotation
        :fe/post-star                       front-end-handlers/post-star
        :fe/post-mark                       front-end-handlers/post-mark
@@ -131,7 +132,7 @@
        :api/get-objective               back-end-handlers/get-objective
        :api/get-objectives              back-end-handlers/get-objectives
        :api/post-comment                back-end-handlers/post-comment
-       :api/post-admin-comment-removal  back-end-handlers/post-comment-removal
+       :api/put-admin-comment-removal   back-end-handlers/post-comment-removal
        :api/get-comments                back-end-handlers/get-comments
        :api/post-question               back-end-handlers/post-question
        :api/get-question                back-end-handlers/get-question

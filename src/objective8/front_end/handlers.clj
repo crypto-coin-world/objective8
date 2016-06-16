@@ -1128,7 +1128,32 @@
                          {:http-api-status status}))
           (default-error-page request 502)))))
 
-    ;; Promoting objectives
+
+(defn post-admin-comment-removal [request]
+  (if-let [comment-removal-data (fr/request->comment-removal-data request (get (friend/current-authentication) :identity))]
+    (let [{status :status removed-comment :result} (http-api/post-comment-removal comment-removal-data)
+          updated-session (dissoc (:session request) :removal-data)]
+      (case status
+        ::http-api/success
+        (-> (response/redirect (:comment-on-uri comment-removal-data))
+            (assoc :session updated-session))
+
+        ::http-api/invalid-input
+        (do (log/info (str "post-admin-comment-removal: invalid input to post-comment-removal api"))
+            (default-error-page request 400))
+
+        (do (log/info (str "post-admin-comment-removal: api error post-comment-removal "
+                           {:http-api-status status
+                            :data comment-removal-data}))
+            (default-error-page request 502))))
+
+    (do (log/info (str "post-admin-comment-removal: fatal validation error "
+                       {:request {:params (:params request)
+                                  :route-params (:route-params request)}
+                        :authenticated-user-id (get (friend/current-authentication) :identity)}))
+        (default-error-page request 400))))
+
+;; Promoting objectives
 
 (defn post-promote-objective [request]
   (if-let [promoted-data (fr/request->promoted-data request (get (friend/current-authentication) :identity))]
@@ -1140,7 +1165,7 @@
             (assoc :session updated-session))
 
         ::http-api/invalid-input
-        (do (log/info (str "post--promote-objective: invalid input to post-promote-objective api "
+        (do (log/info (str "post-promote-objective: invalid input to post-promote-objective api "
                            {:data [promoted-data]}))
             (default-error-page request 400))
 

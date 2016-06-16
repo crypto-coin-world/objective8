@@ -20,6 +20,7 @@
                       "/admin-removal-confirmation" {:post :fe/admin-removal-confirmation-post
                                                      :get  :fe/admin-removal-confirmation-get}
                       "/admin-removals"             {:post :fe/post-admin-removal}
+                      "/remove-comment"             {:post :fe/post-admin-comment-removal}
                       "/promote-objective"              {:post :fe/post-promote-objective}}
     "objectives"     {:get               :fe/objective-list
                       :post              :fe/create-objective-form-post
@@ -89,15 +90,15 @@
               "/writers"       {["/" [#"\d+" :id]] {
                                                     "/objectives" {:get :api/get-objectives-for-writer}}}
 
-              "/meta"          {"/comments"       {:post :api/post-comment
-                                                   :get  :api/get-comments}
-                                "/stars"          {:post :api/post-star}
-                                "/marks"          {:post :api/post-mark}
-                                "/writer-notes"   {:post :api/post-writer-note}
-                                "/admin-removals" {:post :api/post-admin-removal
-                                                   :get  :api/get-admin-removals}
-                                "/promote-objective"  {:put :api/put-promote-objective}
-                                "/remove-comment" {:post :api/post-admin-comment-removal}}
+              "/meta"          {"/comments"          {:post :api/post-comment
+                                                      :get  :api/get-comments}
+                                "/stars"             {:post :api/post-star}
+                                "/marks"             {:post :api/post-mark}
+                                "/writer-notes"      {:post :api/post-writer-note}
+                                "/admin-removals"    {:post :api/post-admin-removal
+                                                      :get  :api/get-admin-removals}
+                                "/promote-objective" {:put :api/put-promote-objective}
+                                "/remove-comment"    {:put :api/put-admin-comment-removal}}
               "/up-down-votes" {:post :api/post-up-down-vote}
               "/invitations"   {:get :api/get-invitation}
               "/activities"    {:get :api/get-activities}}}])

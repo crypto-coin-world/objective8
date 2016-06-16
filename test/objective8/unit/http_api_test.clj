@@ -386,6 +386,18 @@
       (provided
         (http-api/default-get-call (contains (utils/api-path-for :api/get-admin-removals))) => :api-call-result))
 
+;;Comment Removals
+
+(def COMMENT_ID 9)
+(def COMMENT_URI (str "/comments/" COMMENT_ID))
+
+(def comment-removal-data {:removal-uri COMMENT_URI :removed-by-uri USER_URI})
+
+(fact "posting an comment removal hits the correct API endpoint"
+      (http-api/post-comment-removal comment-removal-data) => :api-call-result
+      (provided
+        (http-api/default-put-call (utils/api-path-for :api/put-admin-comment-removal) comment-removal-data) => :api-call-result))
+
 ;;Promoting objectives
 
 (def promoted-objective-data {:objective-uri OBJECTIVE_URI :user-uri USER_URI})
