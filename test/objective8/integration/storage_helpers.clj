@@ -207,13 +207,21 @@
    (let [{created-by-id :_id} (l-get required-entities :user (store-a-user))
          {:keys [_id objective-id global-id entity]} (l-get required-entities :entity (store-an-objective))
          comment-text (get required-entities :comment-text "The comment")
-         objective-id (if (= entity :objective) _id objective-id)]
+         objective-id (if (= entity :objective) _id objective-id)
+         removed-by-admin? (if (:removed-by-admin required-entities) true false)]
      (storage/pg-store! {:entity :comment
                          :created-by-id created-by-id
                          :objective-id objective-id
                          :comment-on-id global-id
                          :comment comment-text
-                         :removed-by-admin false}))))
+                         :removed-by-admin removed-by-admin?}))))
+
+(defn store-a-removed-comment
+  ([]
+   (store-a-comment {:user (store-a-user) :entity (store-an-objective) :removed-by-admin true}))
+
+  ([user entity]
+    (store-a-comment {:user user :entity entity :removed-by-admin true})))
 
 (defn store-an-annotation
   ([] (store-an-annotation {}))

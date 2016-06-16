@@ -126,6 +126,24 @@
                                               :sorted-by "created-at" 
                                               :filter-type "none"}})))
 
+        (fact "does not return any comments for the entity that have been removed by the admin"
+              (let [user (sh/store-a-user)
+                    {draft-id :_id objective-id :objective-id :as draft} (sh/store-a-draft)
+                    draft-uri (str "/objectives/" objective-id "/drafts/" draft-id)
+                    removed-comment (sh/store-a-removed-comment user draft)
+                    stored-comments (doall (->> (repeat {:entity draft :user user})
+                                                (take 1)
+                                                (map sh/store-a-comment)
+                                                (map #(dissoc % :global-id :comment-on-id :removed-by-admin))
+                                                (map #(assoc % :comment-on-uri draft-uri
+                                                               :uri (str "/comments/" (:_id %))))))
+                    escaped-draft-uri (str "%2fobjectives%2f" objective-id "%2fdrafts%2f" draft-id)
+                    {response :response} (p/request app
+                                                    (str (utils/api-path-for :api/get-comments)
+                                                         "?uri=" escaped-draft-uri))]
+
+                (:body response) =not=> (helpers/json-contains {:removed-by-admin true})))
+
         (fact "returns 404 if the entity to retrieve comments for does not exist"
               (let [{response :response} (p/request app
                                                     (str (utils/api-path-for :api/get-comments)

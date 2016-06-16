@@ -227,7 +227,7 @@ LEFT JOIN (SELECT global_id, count(vote) as up_votes
            FROM objective8.up_down_votes
            WHERE vote > 0 GROUP BY global_id) AS agg2
 ON agg2.global_id = comments.global_id
-WHERE comments.comment_on_id = ?
+WHERE comments.comment_on_id = ? AND comments.removed_by_admin=false
 " (get filter-clause filter-type)
                                                             (get sorted-by-clause sorted-by (:created-at sorted-by-clause))
                                                             limit-clause
