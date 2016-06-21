@@ -49,63 +49,65 @@
                                   :fe/post-star :fe/post-writer-note})))
 
 (defn front-end-handlers []
-  (-> {:fe/index                           front-end-handlers/index
-       :fe/sign-in                         front-end-handlers/sign-in
-       :fe/sign-out                        front-end-handlers/sign-out
-       :fe/profile                         front-end-handlers/profile
-       :fe/project-status                  front-end-handlers/project-status
-       :fe/learn-more                      front-end-handlers/learn-more
-       :fe/admin-activity                  front-end-handlers/admin-activity
-       :fe/create-objective-form           front-end-handlers/create-objective-form
-       :fe/create-objective-form-post      front-end-handlers/create-objective-form-post
-       :fe/objective-list                  front-end-handlers/objective-list
-       :fe/objective                       front-end-handlers/objective-detail
-       :fe/get-comments-for-objective      front-end-handlers/get-comments-for-objective
-       :fe/add-a-question                  front-end-handlers/add-a-question
-       :fe/add-question-form-post          front-end-handlers/add-question-form-post
-       :fe/question-list                   front-end-handlers/question-list
-       :fe/question                        front-end-handlers/question-detail
-       :fe/add-answer-form-post            front-end-handlers/add-answer-form-post
-       :fe/writers-list                    front-end-handlers/writers-list
-       :fe/invite-writer                   front-end-handlers/invite-writer
-       :fe/invitation-form-post            front-end-handlers/invitation-form-post
-       :fe/writer-invitation               front-end-handlers/writer-invitation
-       :fe/create-profile-get              front-end-handlers/create-profile-get
-       :fe/create-profile-post             front-end-handlers/create-profile-post
+  (-> {:fe/index                             front-end-handlers/index
+       :fe/sign-in                           front-end-handlers/sign-in
+       :fe/sign-out                          front-end-handlers/sign-out
+       :fe/profile                           front-end-handlers/profile
+       :fe/project-status                    front-end-handlers/project-status
+       :fe/learn-more                        front-end-handlers/learn-more
+       :fe/admin-activity                    front-end-handlers/admin-activity
+       :fe/create-objective-form             front-end-handlers/create-objective-form
+       :fe/create-objective-form-post        front-end-handlers/create-objective-form-post
+       :fe/objective-list                    front-end-handlers/objective-list
+       :fe/objective                         front-end-handlers/objective-detail
+       :fe/get-comments-for-objective        front-end-handlers/get-comments-for-objective
+       :fe/add-a-question                    front-end-handlers/add-a-question
+       :fe/add-question-form-post            front-end-handlers/add-question-form-post
+       :fe/question-list                     front-end-handlers/question-list
+       :fe/question                          front-end-handlers/question-detail
+       :fe/add-answer-form-post              front-end-handlers/add-answer-form-post
+       :fe/writers-list                      front-end-handlers/writers-list
+       :fe/invite-writer                     front-end-handlers/invite-writer
+       :fe/invitation-form-post              front-end-handlers/invitation-form-post
+       :fe/writer-invitation                 front-end-handlers/writer-invitation
+       :fe/create-profile-get                front-end-handlers/create-profile-get
+       :fe/create-profile-post               front-end-handlers/create-profile-post
 
-       :fe/edit-profile-get                front-end-handlers/edit-profile-get
-       :fe/edit-profile-post               front-end-handlers/edit-profile-post
-       :fe/accept-invitation               front-end-handlers/accept-invitation
-       :fe/decline-invitation              front-end-handlers/decline-invitation
-       :fe/add-draft-get                   front-end-handlers/add-draft-get
-       :fe/add-draft-post                  front-end-handlers/add-draft-post
-       :fe/draft                           front-end-handlers/draft
-       :fe/get-comments-for-draft          front-end-handlers/get-comments-for-draft
-       :fe/draft-diff                      front-end-handlers/draft-diff
-       :fe/draft-section                   front-end-handlers/draft-section
-       :fe/draft-list                      front-end-handlers/draft-list
-       :fe/import-draft-get                front-end-handlers/import-draft-get
-       :fe/import-draft-post               front-end-handlers/import-draft-post
-       :fe/dashboard-questions             front-end-handlers/dashboard-questions
-       :fe/dashboard-comments              front-end-handlers/dashboard-comments
-       :fe/dashboard-annotations           front-end-handlers/dashboard-annotations
+       :fe/edit-profile-get                  front-end-handlers/edit-profile-get
+       :fe/edit-profile-post                 front-end-handlers/edit-profile-post
+       :fe/accept-invitation                 front-end-handlers/accept-invitation
+       :fe/decline-invitation                front-end-handlers/decline-invitation
+       :fe/add-draft-get                     front-end-handlers/add-draft-get
+       :fe/add-draft-post                    front-end-handlers/add-draft-post
+       :fe/draft                             front-end-handlers/draft
+       :fe/get-comments-for-draft            front-end-handlers/get-comments-for-draft
+       :fe/draft-diff                        front-end-handlers/draft-diff
+       :fe/draft-section                     front-end-handlers/draft-section
+       :fe/draft-list                        front-end-handlers/draft-list
+       :fe/import-draft-get                  front-end-handlers/import-draft-get
+       :fe/import-draft-post                 front-end-handlers/import-draft-post
+       :fe/dashboard-questions               front-end-handlers/dashboard-questions
+       :fe/dashboard-comments                front-end-handlers/dashboard-comments
+       :fe/dashboard-annotations             front-end-handlers/dashboard-annotations
 
-       :fe/post-up-vote                    front-end-handlers/post-up-vote
-       :fe/post-down-vote                  front-end-handlers/post-down-vote
-       :fe/post-comment                    front-end-handlers/post-comment
-       :fe/post-admin-comment-removal      front-end-handlers/post-admin-comment-removal
-       :fe/post-annotation                 front-end-handlers/post-annotation
-       :fe/post-star                       front-end-handlers/post-star
-       :fe/post-mark                       front-end-handlers/post-mark
-       :fe/post-writer-note                front-end-handlers/post-writer-note
-       :fe/admin-removal-confirmation-get  front-end-handlers/admin-removal-confirmation
-       :fe/admin-removal-confirmation-post front-end-handlers/post-admin-removal-confirmation
-       :fe/post-admin-removal              front-end-handlers/post-admin-removal
-       :fe/post-promote-objective          front-end-handlers/post-promote-objective
-       :fe/error-log-in                    front-end-handlers/error-log-in
-       :fe/error-configuration             front-end-handlers/error-configuration
-       :fe/authorisation-page              front-end-handlers/authorisation-page
-       :fe/cookies                         front-end-handlers/cookies}
+       :fe/post-up-vote                      front-end-handlers/post-up-vote
+       :fe/post-down-vote                    front-end-handlers/post-down-vote
+       :fe/post-comment                      front-end-handlers/post-comment
+       :fe/post-comment-removal-confirmation front-end-handlers/post-comment-removal-confirmation
+       :fe/get-comment-removal-confirmation  front-end-handlers/get-comment-removal-confirmation
+       :fe/post-comment-removal              front-end-handlers/post-comment-removal
+       :fe/post-annotation                   front-end-handlers/post-annotation
+       :fe/post-star                         front-end-handlers/post-star
+       :fe/post-mark                         front-end-handlers/post-mark
+       :fe/post-writer-note                  front-end-handlers/post-writer-note
+       :fe/admin-removal-confirmation-get    front-end-handlers/admin-removal-confirmation
+       :fe/admin-removal-confirmation-post   front-end-handlers/post-admin-removal-confirmation
+       :fe/post-admin-removal                front-end-handlers/post-admin-removal
+       :fe/post-promote-objective            front-end-handlers/post-promote-objective
+       :fe/error-log-in                      front-end-handlers/error-log-in
+       :fe/error-configuration               front-end-handlers/error-configuration
+       :fe/authorisation-page                front-end-handlers/authorisation-page
+       :fe/cookies                           front-end-handlers/cookies}
       (m/wrap-handlers-except utils/anti-forgery-hook #{:fe/index :fe/sign-in :fe/sign-out :fe/profile :fe/project-status
                                                         :fe/learn-more :fe/admin-activity :fe/create-objective-form
                                                         :fe/create-objective-form-post :fe/writer-invitation :fe/draft-diff
@@ -113,7 +115,8 @@
       (wrap-signed-in)
       (m/wrap-just-these-handlers #(friend/wrap-authorize % #{:admin})
                                   #{:fe/admin-removal-confirmation-get :fe/admin-removal-confirmation-post :fe/post-admin-removal
-                                    :fe/post-promote-objective})
+                                    :fe/post-promote-objective
+                                    :fe/post-comment-removal :fe/post-comment-removal-confirmation})
 
       (m/wrap-just-these-handlers m/wrap-authorise-writer-inviter
                                   #{:fe/invite-writer :fe/invitation-form-post})

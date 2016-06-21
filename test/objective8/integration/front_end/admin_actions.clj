@@ -74,7 +74,56 @@
 
 (facts "about removing comments"
        (binding [config/enable-csrf false]
-         (fact "admin can post an admin-removal confirmation for a comment"
+         (fact "submit a request to delete a comment redirects the admin to the confirmation page"
+               (against-background
+                 (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
+                 (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
+                                                                            :result {:_id      USER_ID
+                                                                                     :username "username"}}
+                 (http-api/get-user anything) => {:result {:admin true}})
+
+               (let [user-session (ih/front-end-context)
+                     params {:removal-uri    COMMENT_URI
+                             :removal-sample "The comment"
+                             :comment-on-uri OBJECTIVE_URI}
+                     {response :response} (-> user-session
+                                              ih/sign-in-as-existing-user
+                                              (p/request (utils/path-for :fe/post-comment-removal)
+                                                         :request-method :post
+                                                         :params params)
+                                              p/follow-redirect)]
+                 (:status response) => 200
+                 (:body response) => (contains "The comment")
+                 (:body response) => (contains (:removal-uri params))
+                 (:body response) => (contains (:comment-on-uri params))))
+
+         (fact "Remove comment confirmation page posts to the correct endpoints"
+               (against-background
+                 (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
+                 (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
+                                                                            :result {:_id      USER_ID
+                                                                                     :username "username"}}
+                 (http-api/get-user anything) => {:result {:admin true}})
+
+               (let [user-session (ih/front-end-context)
+                     params {:removal-uri    COMMENT_URI
+                             :removal-sample "The comment"
+                             :comment-on-uri OBJECTIVE_URI}
+                     {response :response} (-> user-session
+                                              ih/sign-in-as-existing-user
+                                              (p/request (utils/path-for :fe/post-comment-removal)
+                                                         :request-method :post
+                                                         :params params)
+                                              p/follow-redirect)]
+                 (:status response) => 200
+                 (:body response) =not=> (contains "/meta/admin-removal-confirmation")
+                 (:body response) => (contains "/meta/remove-comment-confirmation")
+
+                 (:body response) => (contains (str "href=\"" OBJECTIVE_URI))
+                 ))
+
+
+         (fact "admin can submit a removal confirmation for a comment"
                (against-background
                  (oauth/access-token anything anything anything) => {:user_id TWITTER_ID}
                  (http-api/find-user-by-auth-provider-user-id anything) => {:status ::http-api/success
@@ -88,11 +137,11 @@
                                                  :comment-on-uri OBJECTIVE_URI}) => {:status ::http-api/success})
 
                (let [user-session (ih/front-end-context)
-                     params {:removal-uri COMMENT_URI
+                     params {:removal-uri    COMMENT_URI
                              :comment-on-uri OBJECTIVE_URI}
                      {response :response} (-> user-session
                                               ih/sign-in-as-existing-user
-                                              (p/request (utils/path-for :fe/post-admin-comment-removal)
+                                              (p/request (utils/path-for :fe/post-comment-removal-confirmation)
                                                          :request-method :post
                                                          :params params))]
                  (:headers response) => (ih/location-contains OBJECTIVE_URI)
@@ -112,11 +161,11 @@
                                                  :comment-on-uri OBJECTIVE_URI}) => {:status ::http-api/invalid-input})
 
                (let [user-session (ih/front-end-context)
-                     params {:removal-uri COMMENT_URI
+                     params {:removal-uri    COMMENT_URI
                              :comment-on-uri OBJECTIVE_URI}
                      {response :response} (-> user-session
                                               ih/sign-in-as-existing-user
-                                              (p/request (utils/path-for :fe/post-admin-comment-removal)
+                                              (p/request (utils/path-for :fe/post-comment-removal-confirmation)
                                                          :request-method :post
                                                          :params params))]
                  (:status response) => 400))
@@ -135,11 +184,11 @@
                                                  :comment-on-uri OBJECTIVE_URI}) => {:status ::http-api/somethingelse})
 
                (let [user-session (ih/front-end-context)
-                     params {:removal-uri COMMENT_URI
+                     params {:removal-uri    COMMENT_URI
                              :comment-on-uri OBJECTIVE_URI}
                      {response :response} (-> user-session
                                               ih/sign-in-as-existing-user
-                                              (p/request (utils/path-for :fe/post-admin-comment-removal)
+                                              (p/request (utils/path-for :fe/post-comment-removal-confirmation)
                                                          :request-method :post
                                                          :params params))]
                  (:status response) => 502))))

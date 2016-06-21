@@ -10,12 +10,13 @@ block content
     article
       h1(data-l8n="content:admin-removal-confirmation/page-title") !Please confirm
       p.lede
-        span(data-l8n="content:admin-removal-confirmation/are-you-sure") !Are you sure you want to remove this objective:
+        span(data-l8n="content:admin-removal-confirmation/are-you-sure") !Are you sure you want to remove this item:
         = " "
         span.clj-objective-title !More bikes in Soho
 
     .admin-removal-actions
-      a.pink-button(href="/objectives", data-l8n="content:admin-removal-confirmation/no") !No
+      a.pink-button.clj-cancel-removal(href="/objectives", data-l8n="content:admin-removal-confirmation/no") !No
       form.admin-removal-confirmation-form.clj-removal-confirmation-form(method="POST", action="/meta/admin-removal-confirmation")
         input.clj-removal-uri(type="hidden", value="!removal-uri", name="removal-uri")
+        input.clj-comment-on-uri(type="hidden", value="!comment-on-uri", name="comment-on-uri")
         button.button.func--confirm-removal(type="submit", value="yes", data-l8n="content:admin-removal-confirmation/yes") !Yes

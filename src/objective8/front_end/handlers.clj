@@ -1128,9 +1128,27 @@
                          {:http-api-status status}))
           (default-error-page request 502)))))
 
+(defn post-comment-removal [request]
+  (if-let [comment-removal-data (fr/request->comment-removal-data request)]
+    (let [updated-session (assoc (:session request) :removal-data comment-removal-data)]
+      (-> (response/redirect (utils/path-for :fe/get-comment-removal-confirmation))
+          (assoc :session updated-session)))
 
-(defn post-admin-comment-removal [request]
-  (if-let [comment-removal-data (fr/request->comment-removal-data request (get (friend/current-authentication) :identity))]
+    (do (log/info (str "post-comment-removal: fatal validation error "
+                       {:request {:params (:params request)
+                                  :route-params (:route-params request)}}))
+        (default-error-page request 400))))
+
+(defn get-comment-removal-confirmation [request]
+  (if-let [removal-data (fr/request->comment-removal-session-data request)]
+    {:status 200
+     :body (views/admin-removal-confirmation "comment-removal-confirmation" request
+                                             :removal-data removal-data)
+     :headers {"Content-Type" "text/html"}}
+    (error-404-response request)))
+
+(defn post-comment-removal-confirmation [request]
+  (if-let [comment-removal-data (fr/request->comment-removal-confirmation-data request (get (friend/current-authentication) :identity))]
     (let [{status :status removed-comment :result} (http-api/post-comment-removal comment-removal-data)
           updated-session (dissoc (:session request) :removal-data)]
       (case status

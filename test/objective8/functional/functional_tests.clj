@@ -151,12 +151,12 @@
                       :modal-text  "Functional test headline"
                       :writer-name "funcTestUser123"}))
 
-  (future-fact "user cannot see empty promoted objectives container"
+  (fact "user cannot see empty promoted objectives container"
         (try (wd/click "a[href='/objectives']")
 
              (wait-for-title "Objectives | Objective[8]")
 
-             ;(check-not-present ".clj-promoted-objectives-container")
+             (check-not-present ".clj-promoted-objectives-container")
 
              (catch Exception e
                (screenshot "ERROR-Cannot-see-empty-promoted-objectives")
@@ -203,6 +203,20 @@
             (screenshot "ERROR-Can-comment-on-an-objective")
             (throw e)))
         => (contains "Functional test comment text"))
+
+  (fact "Admin can delete a comment on an objective"
+
+        (try (wd/to (:objective-url @journey-state))
+             (wait-for-title "Functional test headline | Objective[8]")
+
+             (screenshot "comments_dashboard")
+
+             {:page-title  (wd/title)
+              :page-source (wd/page-source)}
+
+             (catch Exception e
+               (screenshot "ERROR-can-remove-comments")
+               (throw e))))
 
   (fact "Can view and navigate comment history for an objective"
         (try
@@ -786,6 +800,7 @@
                          (screenshot "ERROR-User-with-admin-credentials-can-promote-and-demote-an-objective")
                          (throw e)))]
           (:page-title result) => "Objectives | Objective[8]"))
+
 
   (fact "User with admin credentials can remove an objective"
         (let [result (try

@@ -3,7 +3,7 @@
             [bidi.ring :refer [->Resources]]))
 
 (def front-end-routes
-  ["/"  ;; FRONT-END
+  ["/"                                                      ;; FRONT-END
    {""               :fe/index
     "sign-in"        :fe/sign-in
     "sign-out"       :fe/sign-out
@@ -11,17 +11,19 @@
     "learn-more"     :fe/learn-more
     "static/"        (->Resources {:prefix "public/"})
     "admin-activity" :fe/admin-activity
-    "meta"           {"/up-vote"                    {:post :fe/post-up-vote}
-                      "/down-vote"                  {:post :fe/post-down-vote}
-                      "/comments"                   {:post :fe/post-comment}
-                      "/stars"                      {:post :fe/post-star}
-                      "/marks"                      {:post :fe/post-mark}
-                      "/writer-notes"               {:post :fe/post-writer-note}
-                      "/admin-removal-confirmation" {:post :fe/admin-removal-confirmation-post
-                                                     :get  :fe/admin-removal-confirmation-get}
-                      "/admin-removals"             {:post :fe/post-admin-removal}
-                      "/remove-comment"             {:post :fe/post-admin-comment-removal}
-                      "/promote-objective"              {:post :fe/post-promote-objective}}
+    "meta"           {"/up-vote"                     {:post :fe/post-up-vote}
+                      "/down-vote"                   {:post :fe/post-down-vote}
+                      "/comments"                    {:post :fe/post-comment}
+                      "/stars"                       {:post :fe/post-star}
+                      "/marks"                       {:post :fe/post-mark}
+                      "/writer-notes"                {:post :fe/post-writer-note}
+                      "/admin-removal-confirmation"  {:post :fe/admin-removal-confirmation-post
+                                                      :get  :fe/admin-removal-confirmation-get}
+                      "/admin-removals"              {:post :fe/post-admin-removal}
+                      "/remove-comment-confirmation" {:post :fe/post-comment-removal-confirmation
+                                                      :get  :fe/get-comment-removal-confirmation}
+                      "/remove-comment"              {:post :fe/post-comment-removal}
+                      "/promote-objective"           {:post :fe/post-promote-objective}}
     "objectives"     {:get               :fe/objective-list
                       :post              :fe/create-objective-form-post
                       "/create"          {:get :fe/create-objective-form}
