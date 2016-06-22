@@ -80,7 +80,7 @@
                     (against-background
                       (http-api/get-objectives) => {:status ::http-api/success
                                                     :result [{:_id 1 :description "description" :title "title"}]})
-                    (default-app objective-list-view-get-request) =not=> (contains {:body (contains "/objectives/promote-objective")}))
+                    (default-app objective-list-view-get-request) =not=> (contains {:body (contains "/meta/promote-objective")}))
 
               (fact "the promote objective button posts to the correct endpoint"
                     (-> user-session

@@ -38,13 +38,6 @@
       (log/info (str "Waiting for predicate failed"))
       (throw e))))
 
-;(defn not-present? [element]
-;  (try
-;    (wd/present? element)
-;    (catch Exception e
-;      (throw e)
-;      )))
-
 
 (defn check-not-present [element]
   (if (try
@@ -203,20 +196,6 @@
             (screenshot "ERROR-Can-comment-on-an-objective")
             (throw e)))
         => (contains "Functional test comment text"))
-
-  (fact "Admin can delete a comment on an objective"
-
-        (try (wd/to (:objective-url @journey-state))
-             (wait-for-title "Functional test headline | Objective[8]")
-
-             (screenshot "comments_dashboard")
-
-             {:page-title  (wd/title)
-              :page-source (wd/page-source)}
-
-             (catch Exception e
-               (screenshot "ERROR-can-remove-comments")
-               (throw e))))
 
   (fact "Can view and navigate comment history for an objective"
         (try
@@ -801,6 +780,63 @@
                          (throw e)))]
           (:page-title result) => "Objectives | Objective[8]"))
 
+  (fact "Admin can delete a comment on an objective"
+        (let [result (try (wd/to (:objective-url @journey-state))
+                          (wait-for-title "Functional test headline | Objective[8]")
+
+                          (screenshot "objective_with_comments_to_remove")
+
+                          (wd/click ".func--remove-comment")
+                          (wait-for-title "Are you sure? | Objective[8]")
+                          (screenshot "objective_comment_removal_confirmation_page")
+
+                          (wd/click ".func--confirm-removal")
+
+                          (screenshot "objective_with_one_comment_removed")
+
+                          (wait-for-title "Functional test headline | Objective[8]")
+
+                          (wd/click ".func--remove-comment")
+                          (wait-for-title "Are you sure? | Objective[8]")
+
+                          (screenshot "another_objective_comment_removal_confirmation_page")
+
+                          (wd/click ".func--confirm-removal")
+                          (wait-for-title "Functional test headline | Objective[8]")
+                          (screenshot "objective_page_with_both_comments_removed")
+
+                          {:page-title  (wd/title)
+                           :page-source (wd/page-source)}
+
+                          (catch Exception e
+                            (screenshot "ERROR-can-remove-comments")
+                            (throw e)))]
+
+          (:content result) =not=> (contains "Functional test comment text")))
+
+  (future-fact "Admin can delete a comment on a draft"
+        (let [result (try
+                       (wd/to (str (:objective-url @journey-state) "/drafts/latest"))
+                       (wait-for-title "Policy draft | Objective[8]")
+
+                       (screenshot "draft_with_comment_to_remove")
+
+                       (wd/click ".func--remove-comment")
+                       (wait-for-title "Are you sure? | Objective[8]")
+                       (screenshot "objective_comment_removal_confirmation_page")
+
+                       (wd/click ".func--confirm-removal")
+
+                       (screenshot "draft_with_one_comment_removed")
+
+                       {:page-title  (wd/title)
+                        :page-source (wd/page-source)}
+
+                       (catch Exception e
+                         (screenshot "ERROR-Can-comment-on-a-draft")
+                         (throw e)))]
+
+          (:content result =not=> (contains "my draft section annotation"))))
 
   (fact "User with admin credentials can remove an objective"
         (let [result (try
@@ -823,6 +859,7 @@
                          (throw e)))]
           (:page-title result) => "Objectives | Objective[8]"
           (:content result) =not=> (contains "Functional test headline")))
+
 
   (fact "Can view the removed objective on the admin-activity page"
         (let [objective-id (-> (:objective-url @journey-state)

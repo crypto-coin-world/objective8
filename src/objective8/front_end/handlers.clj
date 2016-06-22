@@ -1142,7 +1142,7 @@
 (defn get-comment-removal-confirmation [request]
   (if-let [removal-data (fr/request->comment-removal-session-data request)]
     {:status 200
-     :body (views/admin-removal-confirmation "comment-removal-confirmation" request
+     :body (views/admin-removal-confirmation "admin-removal-confirmation" request
                                              :removal-data removal-data)
      :headers {"Content-Type" "text/html"}}
     (error-404-response request)))

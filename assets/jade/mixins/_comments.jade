@@ -3,6 +3,17 @@ mixin commentReply()
     +voteUpDownControls
     a.comment-reply.clj-comment-reply(href="#") Reply
 
+mixin commentDeleteButton()
+
+  .comment-item-removal-container.clj-comment-item-removal-container
+    form.comment-item-removal.clj-comment-removal-form(action="/meta/remove-comment", method="post")
+      input.clj-removal-uri(type="hidden", value="!removal-uri", name="removal-uri")
+      input.clj-removal-sample(type="hidden", value="!removal-sample", name="removal-sample")
+      input.clj-comment-on-uri(type="hidden", value="!comment-on-uri", name="comment-on-uri")
+      button.comment-item-removal-button.func--remove-comment(type="submit")
+        i.fa.fa-trash-o.fa-lg
+
+
 mixin commentItem(author, date, reason)
   li.comment-item.clj-comment-item
     .comment-meta
@@ -12,6 +23,8 @@ mixin commentItem(author, date, reason)
 
     .comment-text.clj-comment-text.func--comment-text
       block
+
+    +commentDeleteButton()
 
     +commentReply
     +writerNote

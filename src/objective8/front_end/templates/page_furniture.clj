@@ -23,9 +23,9 @@
     (if (:cookie-message-enabled config/environment)
       (html/at nodes
                [:head] (html/append cookie-message-library cookie-message-script)
-               [:.clj-cookie-message html/text-node] (html/replace-vars {:cookieLink (str utils/host-url "/cookies")
-                                                                         :cookieMessage (translations :cookie-banner/message)
-                                                                         :cookieDismiss (translations :cookie-banner/dismiss)
+               [:.clj-cookie-message html/text-node] (html/replace-vars {:cookieLink      (str utils/host-url "/cookies")
+                                                                         :cookieMessage   (translations :cookie-banner/message)
+                                                                         :cookieDismiss   (translations :cookie-banner/dismiss)
                                                                          :cookieLearnMore (translations :cookie-banner/learn-more)}))
       nodes)))
 
@@ -166,29 +166,41 @@
 
 (def comment-list-item-snippet (html/select library-html-resource [:.clj-comment-item]))
 
-(defn comment-item [{:keys [user translations] :as context} comment]
+(def comment-list-item-removal-container (html/select comment-list-item-snippet [:.clj-comment-item-removal-container]))
+
+(defn removal-container [anti-forgery-snippet {:keys [comment-on-uri comment uri] :as the-comment}]
+  (html/at comment-list-item-removal-container
+             [:.clj-comment-removal-form] (html/prepend anti-forgery-snippet)
+             [:.clj-removal-uri] (html/set-attr :value uri)
+             [:.clj-removal-sample] (html/set-attr :value comment)
+             [:.clj-comment-on-uri] (html/set-attr :value comment-on-uri)
+           ))
+
+(defn comment-item [{:keys [anti-forgery-snippet user translations] :as context} comment]
   (html/at comment-list-item-snippet
            :lockstep
-           {[:.clj-comment-item]               (html/set-attr :id (str "comment-" (:_id comment)))
-            [:.clj-comment-author]             (html/content (:username comment))
-            [:.clj-comment-date]               (html/content (utils/iso-time-string->pretty-time (:_created_at comment)))
-            [:.clj-comment-text]               (html/content (:comment comment))
-            [:.clj-comment-reason-text]        (when (:reason comment)
-                                                 (html/content
-                                                   (translations (keyword "add-comment-form" (str "comment-reason-" (:reason comment))))))
+           {[:.clj-comment-item]                   (html/set-attr :id (str "comment-" (:_id comment)))
+            [:.clj-comment-author]                 (html/content (:username comment))
+            [:.clj-comment-date]                   (html/content (utils/iso-time-string->pretty-time (:_created_at comment)))
+            [:.clj-comment-text]                   (html/content (:comment comment))
+            [:.clj-comment-reason-text]            (when (:reason comment)
+                                                     (html/content
+                                                       (translations (keyword "add-comment-form" (str "comment-reason-" (:reason comment))))))
             [:.clj-up-down-vote-form]
-                                               (if (:username user)
-                                                 (voting-actions-when-signed-in context comment)
-                                                 (voting-actions-when-not-signed-in context comment))
-            [:.clj-writer-note-item-container] (when (:note comment) identity)
-            [:.clj-writer-note-item-content]   (html/content (:note comment))
-            [:.clj-comment-reply]              nil}))
+                                                   (if (:username user)
+                                                     (voting-actions-when-signed-in context comment)
+                                                     (voting-actions-when-not-signed-in context comment))
+            [:.clj-writer-note-item-container]     (when (:note comment) identity)
+            [:.clj-writer-note-item-content]       (html/content (:note comment))
+            [:.clj-comment-reply]                  nil
+            [:.clj-comment-item-removal-container] (when (permissions/admin? user)
+                                                     (html/substitute (removal-container anti-forgery-snippet comment)))}))
 
 (defn comment-list-items [{:keys [data user translations] :as context} comments]
   (html/at comment-list-item-snippet
            [:.clj-comment-item]
            (html/clone-for [comment comments]
-                           [:.clj-comment-item] (html/content (comment-item context comment)))))
+                           [:.clj-comment-item] (html/substitute (comment-item context comment)))))
 
 (defn comment-list [{:keys [data] :as context}]
   (let [comments (get-in data [:comments-data :comments])]

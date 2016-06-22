@@ -19,6 +19,7 @@
     padding-top: 0;
     border-bottom: none;
   }
+  position: relative;
 }
 .comment-meta {
   @extend %list-item-meta;
@@ -37,6 +38,17 @@
 .comment-actions {
   @extend .list-item-actions;
 }
+
+.comment-item-removal-container {
+  position: absolute;
+  right: 0;  
+  top: 1em;
+}
+
+.comment-item-removal-button {
+  @extend .objective-list-item-removal-button;
+}
+
 .comment-reply {
   @extend %list-item-reply-button;
 }
