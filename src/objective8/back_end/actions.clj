@@ -196,35 +196,38 @@
       {:status ::forbidden})
     {:status ::entity-not-found}))
 
-(defn authorise-user [user-uri do-function]
-  (if-let [user (users/retrieve-user user-uri)]
+
+(defn create-admin-removal! [{:keys [removal-uri removed-by-uri] :as admin-removal-data}]
+  (if-let [user (users/retrieve-user removed-by-uri)]
     (if (users/get-admin-by-auth-provider-user-id (:auth-provider-user-id user))
-        do-function
+      (if-let [objective (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
+        (if (:removed-by-admin objective)
+          {:status ::entity-not-found}
+          (do
+            (objectives/admin-remove-objective! objective)
+            {:status ::success :result (admin-removals/store-admin-removal! admin-removal-data)}))
+        {:status ::entity-not-found})
       {:status ::forbidden})
     {:status ::entity-not-found}))
 
-(defn create-admin-removal! [{:keys [removal-uri removed-by-uri] :as admin-removal-data}]
-  (authorise-user removed-by-uri
-                  (if-let [objective (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
-                   (if (:removed-by-admin objective)
-                     {:status ::entity-not-found}
-                     (do
-                       (objectives/admin-remove-objective! objective)
-                       {:status ::success :result (admin-removals/store-admin-removal! admin-removal-data)}))
-                   {:status ::entity-not-found})))
-
 (defn promote-objective! [{:keys [objective-uri promoted-by] :as promoted-objective-data}]
-  (authorise-user promoted-by
-                  (if-let [objective (storage/pg-retrieve-entity-by-uri objective-uri :with-global-id)]
-                   (if-let [toggled-objective (objectives/toggle-promoted-status! objective)]
-                     {:status ::success :result toggled-objective}
-                     {:status ::forbidden})
-                   {:status ::entity-not-found})))
+  (if-let [user (users/retrieve-user promoted-by)]
+    (if (users/get-admin-by-auth-provider-user-id (:auth-provider-user-id user))
+      (if-let [objective (storage/pg-retrieve-entity-by-uri objective-uri :with-global-id)]
+        (if-let [toggled-objective (objectives/toggle-promoted-status! objective)]
+          {:status ::success :result toggled-objective}
+          {:status ::forbidden})
+        {:status ::entity-not-found})
+      {:status ::forbidden})
+    {:status ::entity-not-found}))
 
 (defn admin-remove-comment! [{:keys [removal-uri removed-by-uri] :as removed-comment-data}]
-  (authorise-user removed-by-uri
-                  (if-let [comment (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
-                   (if-let [removed-comment (comments/admin-remove-comment! comment)]
-                     {:status ::success :result removed-comment}
-                     {:status ::forbidden})
-                   {:status ::entity-not-found})))
+  (if-let [user (users/retrieve-user removed-by-uri)]
+    (if (users/get-admin-by-auth-provider-user-id (:auth-provider-user-id user))
+      (if-let [comment (storage/pg-retrieve-entity-by-uri removal-uri :with-global-id)]
+        (if-let [removed-comment (comments/admin-remove-comment! comment)]
+          {:status ::success :result removed-comment}
+          {:status ::forbidden})
+        {:status ::entity-not-found})
+      {:status ::forbidden})
+    {:status ::entity-not-found}))
